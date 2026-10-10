@@ -2,7 +2,7 @@
 const {
   byZh, categories, choiceOptions, dictionaryName, dictionaryUrl, featuredIds,
   lessons, prompts, sentencePoster, sentences, sentencesFor, sentenceVideo,
-  shuffle, song, wordOfDay, wordPoster, words, wordVideo,
+  shuffle, song, songs, wordOfDay, wordPoster, words, wordVideo,
 } = window.ShouyuData;
 const { arrange } = window.ShouyuOrder;
 
@@ -635,17 +635,21 @@ function pagePractice() {
 }
 
 function pageSongs() {
-  const yt = song.youtube || "https://youtu.be/ZaTyHFcoYXw?si=5zT9YaB8EpRHp_V4";
+  const list = (songs && songs.length) ? songs : [song];
   return `<div class="stack gap-lg" style="max-width:48rem;margin:0 auto">
     <header class="hero"><p class="eyebrow">SIGN LANGUAGE SONG</p><h1>手語歌曲</h1>
-      <p class="lead">前往公開影片練習手語歌曲（僅使用可公開分享的連結）。</p></header>
-    <div class="card stack gap-sm" style="text-align:center;padding:2rem 1.25rem">
-      <h2 style="margin:0">公開手語歌曲示範</h2>
-      <p class="muted">在 YouTube 觀看與練習。本應用不內嵌受著作權限制的歌曲檔案。</p>
-      <div class="row" style="justify-content:center;margin-top:.5rem">
-        <a class="btn btn-primary" href="${esc(yt)}" target="_blank" rel="noopener noreferrer">在 YouTube 公開觀看</a>
-      </div>
+      <p class="lead">以下為公開 YouTube 手語歌曲連結，點擊即可在新分頁觀看與練習。本應用不內嵌受著作權限制的歌曲檔案。</p></header>
+    <div class="stack gap-sm">
+      ${list.map((s,i)=>`
+        <div class="card row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;padding:1rem 1.1rem">
+          <div>
+            <div class="subtle">${i+1}. ${esc(s.channel||"YouTube")}</div>
+            <h2 style="margin:.2rem 0 0;font-size:1.15rem">${esc(s.title)}</h2>
+          </div>
+          <a class="btn btn-primary btn-sm" href="${esc(s.youtube)}" target="_blank" rel="noopener noreferrer">在 YouTube 觀看</a>
+        </div>`).join("")}
     </div>
+    <p class="subtle">來源頻道多標示歡迎轉載與引用；音樂著作權屬原作者，請於 YouTube 依法觀看。</p>
   </div>`;
 }
 

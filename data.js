@@ -81,12 +81,57 @@ const lessons = [
   {id:"combo",kicker:"第八課",title:"把軸串成完整句",body:"把前六課串起來：時間 → 人物 → 地點／物品 → 動作 → 疑問。這句「昨天下午我去學校」可練習時間與地點同時出現時的順序。",words:["昨天","下午","我","去","學校","看","書"],sentence:"昨天下午我去學校"},
   {id:"dict",kicker:"第九課",title:"對照辭典原句",body:"教學語序是示意；辭典例句可能把時間放在主詞後面，或用不同動詞。這一課用「昨天我看電影」對照辭典打法（辭典常用「欣賞」），練習接受真實語料的彈性。",words:["我","昨天","看","去"],sentence:"昨天我看電影"},
 ];
-const song = {
-  id:"public-1",
-  title:"公開手語歌曲",
-  artist:"",
-  youtube:"https://youtu.be/ZaTyHFcoYXw?si=5zT9YaB8EpRHp_V4",
-};
+const songs = [
+  {
+    id: "wish",
+    title: "願所有美好都如期而至",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=ZaTyHFcoYXw",
+  },
+  {
+    id: "tomorrow",
+    title: "明天會更好",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=0am18YKfoGE",
+  },
+  {
+    id: "hand-in-hand",
+    title: "手牽手",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=EaOFciYBMv8",
+  },
+  {
+    id: "little-hand",
+    title: "小手拉大手",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=G-bNQ1KPHrs",
+  },
+  {
+    id: "photo",
+    title: "用一張照片定格住時間",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=xJ6X_WCPY4g",
+  },
+  {
+    id: "wings",
+    title: "隱形的翅膀",
+    channel: "手語好好玩 Have fun in TSL",
+    youtube: "https://www.youtube.com/watch?v=M8egtX3EYJY",
+  },
+  {
+    id: "thank-you",
+    title: "聽我說謝謝你",
+    channel: "SignTube",
+    youtube: "https://www.youtube.com/watch?v=L4uyLh45434",
+  },
+  {
+    id: "pass-love",
+    title: "讓愛傳出去",
+    channel: "大愛電視 Tzu Chi DaAiVideo",
+    youtube: "https://www.youtube.com/watch?v=trD1zRrwQJA",
+  },
+];
+const song = songs[0];
 const dictionaryUrl = "https://twtsl.ccu.edu.tw/";
 const dictionaryName = "台灣手語線上辭典（國立中正大學）";
 const activityVerbs = new Set(["看","吃","喝","寫","讀","學","考試"]);
@@ -119,7 +164,7 @@ function choiceOptions(answer, pool, count=3){
 }
 
 window.ShouyuData = {
-  particles, words, categories, sentences, prompts, featuredIds, lessons, song,
+  particles, words, categories, sentences, prompts, featuredIds, lessons, song, songs,
   dictionaryUrl, dictionaryName, activityVerbs, patterns, byZh,
   wordVideo, wordPoster, sentenceVideo, sentencePoster, sentencesFor, wordOfDay,
   shuffle, choiceOptions,
