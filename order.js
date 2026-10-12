@@ -3,13 +3,17 @@ const {
   activityVerbs, byZh, particles, patterns, sentences, words,
 } = window.ShouyuData;
 
+const punct = /[\s,。！？、,.!?「」『』（）()]/;
+const lexicon = [...new Set([...words.map(w => w.zh), ...particles])]
+  .sort((a, b) => b.length - a.length);
+
 function kindOf(text){
   if(particles.includes(text)) return "drop";
   return byZh[text]?.kind ?? "unk";
 }
 
 function normalize(text){
-  return text.replace(/[\s,。！？、,.!?「」『』（）()]/g,"");
+  return text.replace(punct, "");
 }
 
 function tokenize(input){
