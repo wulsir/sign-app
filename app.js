@@ -694,19 +694,26 @@ function render() {
   stageStore.clear();
   app.innerHTML = `<div class="app">${chrome()}<div id="dlg"></div></div>`;
   const main = $("#main");
-  main.innerHTML =
-    S.route==="home" ? pageHome() :
-    S.route==="lexicon" ? pageLexicon() :
-    S.route==="lessons" ? pageLessons() :
-    S.route==="lesson" ? pageLesson() :
-    S.route==="practice" ? pagePractice() :
-    S.route==="songs" ? pageSongs() : "";
-  if (S.dialog) $("#dlg").innerHTML = dialogHTML();
-  $$("[data-stage]", app).forEach(bindStage);
+  try {
+    main.innerHTML =
+      S.route==="home" ? pageHome() :
+      S.route==="lexicon" ? pageLexicon() :
+      S.route==="lessons" ? pageLessons() :
+      S.route==="lesson" ? pageLesson() :
+      S.route==="practice" ? pagePractice() :
+      S.route==="songs" ? pageSongs() : "";
+    if (S.dialog) $("#dlg").innerHTML = dialogHTML();
+    $$("[data-stage]", app).forEach(bindStage);
+  } catch (err) {
+    console.error(err);
+    main.innerHTML = `<p class="card">這一頁暫時打不開。請先回其他分頁。</p>`;
+  }
   wire(app);
 }
 
 function wire(root) {
+  if (!root._clickWired) {
+  root._clickWired = true;
   root.addEventListener("click", e => {
     const t = e.target.closest("[data-nav],[data-prompt],[data-mode],[data-tok],[data-open-word],[data-open-line],[data-open-lesson],[data-lex-tab],[data-lex-filter],[data-prac-tab],[data-close-dialog],[data-fav],[data-lesson-next],[data-lesson-word],[data-lesson-quiz],[data-lesson-quiz-retry],[data-quiz-opt],[data-quiz-next],[data-mean-opt],[data-mean-next],[data-place],[data-unplace],[data-order-check],[data-order-reset],[data-order-hint],[data-order-next],[data-flash-side],[data-flash-reveal],[data-flash-grade],[data-export-progress],[data-import-progress],[data-reset-progress]");
     if (!t) return;
@@ -776,6 +783,7 @@ function wire(root) {
       S.flash={...pickFlash(S.flash.word.zh), side:S.flash.side, phase:"prompt"}; render(); return;
     }
   });
+  }
   $("#compose-form", root)?.addEventListener("submit", e => {
     e.preventDefault(); commit($("#sentence-input", root)?.value || S.draft);
   });
