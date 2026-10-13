@@ -1,5 +1,15 @@
 (function(){
-const particles = ["的","了","著","過","嗎","呢","吧","啊"];
+const particles = ["的","了","著","過","嗎","呢","吧","啊","是"];
+const particleNotes = {
+  "是":"「是」當繫詞（A 是 B）時常不單獨打；若要強調或對比才會另外打。",
+};
+// 詞庫以外、沒有影片的輔助詞：只用來幫語序轉換判斷詞類，不會出現在詞彙頁。
+const extraWords = [
+  {zh:"想",kind:"other"},{zh:"會",kind:"other"},{zh:"要",kind:"other"},
+  {zh:"買",kind:"action"},{zh:"商店",kind:"place"},{zh:"飲料",kind:"object"},
+  {zh:"電影",kind:"object"},{zh:"汽水",kind:"object"},
+];
+const motionVerbs = new Set(["去","來"]);
 const words = [
   {zh:"今天",slug:"now",category:"時間",kind:"time",gloss:"today / now",note:"辭典將「今天」與「現在」收為同一支詞彙影片。"},
   {zh:"明天",slug:"tomorrow",category:"時間",kind:"time",gloss:"tomorrow"},
@@ -24,9 +34,9 @@ const words = [
   {zh:"說",slug:"speak",category:"動作",kind:"action",gloss:"speak"},
   {zh:"懂",slug:"know",category:"動作",kind:"action",gloss:"understand"},
   {zh:"幫忙",slug:"help",category:"動作",kind:"action",gloss:"help"},
-  {zh:"上課",slug:"attend_class",category:"動作",kind:"time",gloss:"class begins",note:"課表事件常當時間框架，放在句前段。"},
-  {zh:"下課",slug:"dismiss_class",category:"動作",kind:"time",gloss:"class dismissed",note:"課表事件常當時間框架，放在句前段。"},
-  {zh:"考試",slug:"test",category:"動作",kind:"action",gloss:"exam"},
+  {zh:"上課",slug:"attend_class",category:"時間",kind:"time",gloss:"class begins",note:"課表事件常當時間框架，放在句前段。"},
+  {zh:"下課",slug:"dismiss_class",category:"時間",kind:"time",gloss:"class dismissed",note:"課表事件常當時間框架，放在句前段。"},
+  {zh:"考試",slug:"test",category:"物品",kind:"object",gloss:"exam",note:"「考試」在句中多半是事件／名詞；「去考試」的「去」仍可省略。"},
   {zh:"交",slug:"supply",category:"動作",kind:"action",gloss:"hand in"},
   {zh:"學校",slug:"school",category:"地點",kind:"place",gloss:"school"},
   {zh:"教室",slug:"classroom",category:"地點",kind:"place",gloss:"classroom"},
@@ -71,14 +81,14 @@ const sentences = [
 const prompts = ["明天我去學校","你吃飯了嗎","老師問你什麼","今天下午考試","我不懂作業","昨天我看電影","下課去教室","請你幫忙","昨天下午我去學校","我不喜歡考試"];
 const featuredIds = ["yesterday","please","who","dismiss_class","eat","drink"];
 const lessons = [
-  {id:"time",kicker:"第一課",title:"時間在前面",body:"台灣手語常把時間框架放在句子前段，讓聽者先知道「什麼時候」。這不是絕對規則，辭典例句裡時間詞也可能跟在主詞後面。",words:["今天","明天","昨天","現在","上午","下午"],sentence:"今天下午考試"},
-  {id:"people",kicker:"第二課",title:"誰在場",body:"人物指稱清楚：我、你、他，以及學校裡的老師與同學。手語裡角色可用空間定位，不必重複代詞。",words:["我","你","他","老師","同學"],sentence:"老師問你什麼"},
+  {id:"time",kicker:"第一課",title:"時間在前面",body:"台灣手語常把時間框架放在句子前段，讓聽者先知道「什麼時候」。這只是常見傾向，不是絕對規則：辭典例句「我 昨天 電影 欣賞」就把時間放在主詞後面。",words:["今天","明天","昨天","現在","上午","下午"],sentence:"今天下午考試"},
+  {id:"people",kicker:"第二課",title:"誰在場",body:"人物指稱清楚：我、你、他，以及學校裡的老師與同學。手語裡角色可用空間定位，不必重複代詞；「問」這類動詞還可以把對象融進動作裡（辭典例句：他 問我），不一定要另外打對象。",words:["我","你","他","老師","同學"],sentence:"老師問你什麼"},
   {id:"ov",kicker:"第三課",title:"東西先，動作後",body:"中文常說「吃飯、看電影」；手語更常是物品在前、動詞在後，例如「飯 → 吃」「電影 → 看」。方向動詞「去」在活動動詞前有時不單獨打。",words:["吃","喝","看","寫","讀","飯","水","書","作業"],sentence:"你吃飯了嗎"},
-  {id:"school",kicker:"第四課",title:"學校的一天",body:"地點常出現在人物之後、動詞之前。上課、下課像時間框架，常放句首，再接去哪裡、做什麼。",words:["學校","教室","上課","下課","考試","交","去","來"],sentence:"明天我去學校"},
-  {id:"ask",kicker:"第五課",title:"把疑問留到最後",body:"疑問詞（什麼、誰、哪裡、為什麼、怎麼、幾）多半落在句尾。中文的「嗎」通常改用疑問表情與頭部動作，而不是一個獨立手勢。",words:["什麼","誰","哪裡","為什麼","怎麼","幾"],sentence:"老師問你什麼"},
-  {id:"courtesy",kicker:"第六課",title:"禮貌與態度",body:"謝謝、對不起、請、再見、喜歡、好、不。否定「不」通常緊貼它所修飾的動詞。",words:["謝謝","對不起","請","再見","喜歡","好","不","懂","幫忙"],sentence:"請你幫忙"},
-  {id:"negation",kicker:"第七課",title:"否定怎麼排",body:"「不」通常緊貼所修飾的動詞或形容詞，例如「懂 → 不」「喜歡 → 不」。整句仍可依時間、人物、物品的順序排。",words:["不","懂","喜歡","好","我","你","作業"],sentence:"我不懂作業"},
-  {id:"combo",kicker:"第八課",title:"把軸串成完整句",body:"把前六課串起來：時間 → 人物 → 地點／物品 → 動作 → 疑問。這句「昨天下午我去學校」可練習時間與地點同時出現時的順序。",words:["昨天","下午","我","去","學校","看","書"],sentence:"昨天下午我去學校"},
+  {id:"school",kicker:"第四課",title:"學校的一天",body:"地點常出現在人物之後、動詞之前。上課、下課像時間框架，常放句首，再接去哪裡、做什麼。辭典例句「下課 去 商店 飲料 買」裡，「去」是放在地點前面。",words:["學校","教室","上課","下課","考試","交","去","來"],sentence:"明天我去學校"},
+  {id:"ask",kicker:"第五課",title:"把疑問留到最後",body:"疑問詞（什麼、誰、哪裡、為什麼、怎麼、幾）常落在句尾。也有例外：辭典例句「台灣 吃 大部分 什麼 米」是自問自答，「什麼」在中間。中文的「嗎」通常改用疑問表情與頭部動作，而不是一個獨立手勢。",words:["什麼","誰","哪裡","為什麼","怎麼","幾"],sentence:"老師問你什麼"},
+  {id:"courtesy",kicker:"第六課",title:"禮貌與態度",body:"謝謝、對不起、請、再見、喜歡、好、不。「請」在辭典例句（請 再 說…）放在句首。否定「不」緊貼它所否定的動詞或形容詞。",words:["謝謝","對不起","請","再見","喜歡","好","不","懂","幫忙"],sentence:"請你幫忙"},
+  {id:"negation",kicker:"第七課",title:"否定怎麼排",body:"「不」緊貼所否定的動詞或形容詞，例如「不 懂」「不 喜歡」。「不」到底放在動詞前還是後，本站目前沒有辭典例句可以佐證，這裡先保留和中文相同的前後關係，請以辭典影片或手語老師的打法為準。整句仍可依時間、人物、物品的順序排。",words:["不","懂","喜歡","好","我","你","作業"],sentence:"我不懂作業"},
+  {id:"combo",kicker:"第八課",title:"把軸串成完整句",body:"把前幾課串起來：時間 → 人物 → 去／來 → 地點／物品 → 動作 → 疑問。這是教學用的常見排法，不是唯一正確答案。這句「昨天下午我去學校」可練習時間與地點同時出現時的順序。",words:["昨天","下午","我","去","學校","看","書"],sentence:"昨天下午我去學校"},
   {id:"dict",kicker:"第九課",title:"對照辭典原句",body:"教學語序是示意；辭典例句可能把時間放在主詞後面，或用不同動詞。這一課用「昨天我看電影」對照辭典打法（辭典常用「欣賞」），練習接受真實語料的彈性。",words:["我","昨天","看","去"],sentence:"昨天我看電影"},
 ];
 const songs = [
@@ -141,8 +151,8 @@ const patterns = [
   {pattern:"喝水",rule:"「喝水」改成物品在前：水 → 喝。"},
   {pattern:"寫作業",rule:"「寫作業」改成物品在前：作業 → 寫。"},
   {pattern:"讀書",rule:"「讀書」改成物品在前：書 → 讀。"},
-  {pattern:"去學校",rule:"地點常出現在動詞前：學校 → 去。"},
-  {pattern:"去教室",rule:"地點常出現在動詞前：教室 → 去。"},
+  {pattern:"去學校",rule:"「去」照辭典例句放在地點前：去 → 學校。（辭典沒有「學校去」的例句。）"},
+  {pattern:"去教室",rule:"「去」照辭典例句放在地點前：去 → 教室。"},
 ];
 const byZh = Object.fromEntries(words.map(w => [w.zh, w]));
 function wordVideo(zh){ const w=byZh[zh]; return w?`./videos/words/${w.slug}.mp4`:null; }
@@ -164,7 +174,7 @@ function choiceOptions(answer, pool, count=3){
 }
 
 window.ShouyuData = {
-  particles, words, categories, sentences, prompts, featuredIds, lessons, song, songs,
+  particles, particleNotes, extraWords, motionVerbs, words, categories, sentences, prompts, featuredIds, lessons, song, songs,
   dictionaryUrl, dictionaryName, activityVerbs, patterns, byZh,
   wordVideo, wordPoster, sentenceVideo, sentencePoster, sentencesFor, wordOfDay,
   shuffle, choiceOptions,

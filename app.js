@@ -594,7 +594,7 @@ function pagePractice() {
         <button type="button" class="btn btn-ghost" data-order-hint ${o.checked?"disabled":""}>提示</button>
       </div>
       ${o.hint&&!o.checked?`<p class="muted">${esc(o.hint)}</p>`:""}
-      ${o.checked?`<div class="stack"><p class="muted" style="${o.correct?"color:var(--good)":""}">${o.correct?"和辭典語序一致。":`辭典語序：${esc(o.sentence.gloss.join(" → "))}。`}</p>
+      ${o.checked?`<div class="stack"><p class="muted" style="${o.correct?"color:var(--good)":""}">${o.correct?"和辭典語序一致。":`和辭典打法不同。辭典語序：${esc(o.sentence.gloss.join(" → "))}。手語語序有彈性，這只是其中一種真實打法。`}</p>
         ${stageHTML(`po:${o.sentence.id}`,[{key:o.sentence.id,src:sentenceVideo(o.sentence.slug),poster:sentencePoster(o.sentence.slug),label:o.sentence.translation}])}
         <button type="button" class="btn btn-primary" data-order-next>下一題</button></div>`:""}
     </div>`;
@@ -694,19 +694,26 @@ function render() {
   stageStore.clear();
   app.innerHTML = `<div class="app">${chrome()}<div id="dlg"></div></div>`;
   const main = $("#main");
-  main.innerHTML =
-    S.route==="home" ? pageHome() :
-    S.route==="lexicon" ? pageLexicon() :
-    S.route==="lessons" ? pageLessons() :
-    S.route==="lesson" ? pageLesson() :
-    S.route==="practice" ? pagePractice() :
-    S.route==="songs" ? pageSongs() : "";
-  if (S.dialog) $("#dlg").innerHTML = dialogHTML();
-  $$("[data-stage]", app).forEach(bindStage);
+  try {
+    main.innerHTML =
+      S.route==="home" ? pageHome() :
+      S.route==="lexicon" ? pageLexicon() :
+      S.route==="lessons" ? pageLessons() :
+      S.route==="lesson" ? pageLesson() :
+      S.route==="practice" ? pagePractice() :
+      S.route==="songs" ? pageSongs() : "";
+    if (S.dialog) $("#dlg").innerHTML = dialogHTML();
+    $$("[data-stage]", app).forEach(bindStage);
+  } catch (err) {
+    console.error(err);
+    main.innerHTML = `<p class="card">這一頁暫時打不開。請先回其他分頁。</p>`;
+  }
   wire(app);
 }
 
 function wire(root) {
+  if (!root._clickWired) {
+  root._clickWired = true;
   root.addEventListener("click", e => {
     const t = e.target.closest("[data-nav],[data-prompt],[data-mode],[data-tok],[data-open-word],[data-open-line],[data-open-lesson],[data-lex-tab],[data-lex-filter],[data-prac-tab],[data-close-dialog],[data-fav],[data-lesson-next],[data-lesson-word],[data-lesson-quiz],[data-lesson-quiz-retry],[data-quiz-opt],[data-quiz-next],[data-mean-opt],[data-mean-next],[data-place],[data-unplace],[data-order-check],[data-order-reset],[data-order-hint],[data-order-next],[data-flash-side],[data-flash-reveal],[data-flash-grade],[data-export-progress],[data-import-progress],[data-reset-progress]");
     if (!t) return;
@@ -776,6 +783,7 @@ function wire(root) {
       S.flash={...pickFlash(S.flash.word.zh), side:S.flash.side, phase:"prompt"}; render(); return;
     }
   });
+  }
   $("#compose-form", root)?.addEventListener("submit", e => {
     e.preventDefault(); commit($("#sentence-input", root)?.value || S.draft);
   });
