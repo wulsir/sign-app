@@ -5,15 +5,10 @@ const {
 } = window.ShouyuData;
 
 const punct = /[\s,。！？、,.!?「」『』（）()]/;
-<<<<<<< HEAD
 const extraByZh = Object.fromEntries(extraWords.map(w => [w.zh, w]));
 const lexicon = [...new Set([
   ...words.map(w => w.zh), ...extraWords.map(w => w.zh), ...particles,
 ])].sort((a, b) => b.length - a.length);
-=======
-const lexicon = [...new Set([...words.map(w => w.zh), ...particles])]
-  .sort((a, b) => b.length - a.length);
->>>>>>> 0592df9e37f7b757d003fe6572450324d0d0e3aa
 
 function kindOf(text){
   if(particles.includes(text)) return "drop";
